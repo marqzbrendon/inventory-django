@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory List</title>
+    <style>
+        /* Add some styling for the modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Inventory List</h1>
+    <ul>
+        {% for item in items %}
+            <li>
+                {{ item.name }} - {{ item.quantity }}
+                <form action="{% url 'increase_quantity' item.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Increase</button>
+                </form>
+                <form action="{% url 'decrease_quantity' item.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Decrease</button>
+                </form>
+                <form action="{% url 'delete_item' item.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Add a button to open the modal -->
+    <button id="openModal">Add New Item</button>
+
+    <!-- The modal -->
+    <div id="myModal" class="modal">
+        <span id="closeModal" style="cursor: pointer; position: absolute; top: 10px; right: 10px;">&times;</span>
+        <h2>Add New Item</h2>
+        <div id="modalContent"></div>
+    </div>
+
+    <!-- Include jQuery (you may need to download and include it in your project) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include JavaScript to handle modal opening and closing -->
+    <script>
+        // Get the modal and buttons
+        var modal = document.getElementById('myModal');
+        var btn = document.getElementById('openModal');
+        var span = document.getElementById('closeModal');
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            loadForm();
+            modal.style.display = 'block';
+        }
+
+        // When the user clicks on the close button, close the modal
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // When the user clicks outside the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function loadForm() {
+            // Use AJAX to load the form content dynamically
+            $.get("{% url 'add_item' %}", function(data) {
+                $("#modalContent").html(data);
+            });
+        }
+    </script>
+</body>
+</html>

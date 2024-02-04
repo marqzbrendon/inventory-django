@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Item</title>
+</head>
+<body>
+    <form id="addItemForm" method="post" action="{% url 'add_item' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Item</button>
+    </form>
+</body>
+</html>
