@@ -1,8 +1,43 @@
+<!-- inventory/inventory_list.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Inventory List</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Center the list */
+        #inventoryList {
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 0;
+            list-style-type: none; /* Remove bullets from listed items */
+        }
+
+        /* Style alternating rows */
+        #inventoryList li:nth-child(odd) {
+            background-color: #fff; /* White */
+        }
+
+        #inventoryList li:nth-child(even) {
+            background-color: #f2f2f2; /* Light gray */
+        }
+
+        /* Align quantities and buttons to the right */
+        #inventoryList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Style buttons */
+        .actions {
+            display: flex;
+            align-items: center;
+        }
+
         /* Add some styling for the modal */
         .modal {
             display: none;
@@ -15,37 +50,102 @@
             background-color: #fff;
             z-index: 1000;
         }
+
+        /* Apply modal-like styling to the access code form */
+        .access-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            z-index: 1000;
+        }
+
+        /* Style the "Add New Item" button */
+        #openModal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Green */
+            color: #fff; /* White text */
+            border: none;
+            border-radius: 50%; /* Make it a circle */
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Style the buttons */
+        .actions button {
+            background-color: #3f3f3f1a; /* Green */
+            color: #000000; /* White text */
+            border: none;
+            border-radius: 50%; /* Make it a circle */
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            outline: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Inventory List</h1>
-    <ul>
+    <!-- Access code form -->
+    {% if access_form_visible and items is None %}
+    <form id="accessForm" class="access-form" method="post" action="{% url 'inventory_list' %}">
+        {% csrf_token %}
+        {{ access_form.as_p }}
+        <button id="submitCodeBtn" type="submit">Submit Code</button>
+    </form>
+    {% endif %}
+    
+    <!-- Inventory list -->
+    <ul id="inventoryList" class="{% if items is None %}hidden{% endif %}">
+        <h1>Inventory List</h1>
+        <!-- Headers -->
+        <li>
+            <span><strong>Item</strong></span>
+            <span><strong>Quantity</strong></span>
+            <span class="actions">
+                <strong>+</strong>
+                <strong>-</strong>
+                <strong>&#128465;</strong>
+            </span>
+        </li>
         {% for item in items %}
             <li>
-                {{ item.name }} - {{ item.quantity }}
-                <form action="{% url 'increase_quantity' item.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit">Increase</button>
-                </form>
-                <form action="{% url 'decrease_quantity' item.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit">Decrease</button>
-                </form>
-                <form action="{% url 'delete_item' item.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit">Delete</button>
-                </form>
+                <span>{{ item.name }}</span>
+                <span>{{ item.quantity }}</span>
+                <span class="actions">
+                    <form action="{% url 'increase_quantity' item.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">+</button>
+                    </form>
+                    <form action="{% url 'decrease_quantity' item.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">-</button>
+                    </form>
+                    <form action="{% url 'delete_item' item.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">&#128465;</button>
+                    </form>
+                </span>
             </li>
         {% endfor %}
     </ul>
-    
+
+    <!-- Add the "Add New Item" button -->
     <!-- Add a button to open the modal -->
-    <button id="openModal">Add New Item</button>
+    <button id="openModal">+</button>
 
     <!-- The modal -->
     <div id="myModal" class="modal">
         <span id="closeModal" style="cursor: pointer; position: absolute; top: 10px; right: 10px;">&times;</span>
-        <h2>Add New Item</h2>
         <div id="modalContent"></div>
     </div>
 
@@ -58,6 +158,7 @@
         var modal = document.getElementById('myModal');
         var btn = document.getElementById('openModal');
         var span = document.getElementById('closeModal');
+        var accessForm = document.getElementById('accessForm');
 
         // When the user clicks the button, open the modal
         btn.onclick = function() {
@@ -76,6 +177,13 @@
                 modal.style.display = 'none';
             }
         }
+
+        // Show or hide the access form based on session data
+        $(document).ready(function() {
+            if (!('user_code' in sessionStorage)) {
+                accessForm.style.display = 'block';
+            }
+        });
 
         function loadForm() {
             // Use AJAX to load the form content dynamically
