@@ -1,44 +1,47 @@
-<!-- inventory/inventory_list.html -->
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Inventory List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-        }
-
-        /* Center the list */
-        #inventoryList {
-            margin: 0 auto;
-            max-width: 600px;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
             padding: 0;
-            list-style-type: none; /* Remove bullets from listed items */
         }
 
-        /* Style alternating rows */
-        #inventoryList li:nth-child(odd) {
-            background-color: #fff; /* White */
+        .hidden {
+            display: none;
         }
 
-        #inventoryList li:nth-child(even) {
-            background-color: #f2f2f2; /* Light gray */
+        #inventoryList {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0;
+            list-style-type: none;
         }
 
-        /* Align quantities and buttons to the right */
         #inventoryList li {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px;
+            background-color: #fff;
+            border-bottom: 1px solid #ccc;
         }
 
-        /* Style buttons */
+        #inventoryList li:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
         .actions {
             display: flex;
             align-items: center;
+            gap: 10px; /* Adjust the gap between buttons */
         }
 
-        /* Add some styling for the modal */
         .modal {
             display: none;
             position: fixed;
@@ -46,12 +49,18 @@
             left: 50%;
             transform: translate(-50%, -50%);
             border: 1px solid #ccc;
-            padding: 20px;
             background-color: #fff;
             z-index: 1000;
+            width: 70%;
+            max-width: 400px;
         }
 
-        /* Apply modal-like styling to the access code form */
+        .modal h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
         .access-form {
             display: none;
             position: fixed;
@@ -62,33 +71,58 @@
             padding: 20px;
             background-color: #fff;
             z-index: 1000;
+            width: 90%;
+            max-width: 300px;
         }
 
-        /* Style the "Add New Item" button */
+        .access-form h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .access-form label {
+            display: block;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .access-form input[type="text"],
+        .access-form input[type="password"],
+        .access-form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .access-form button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            float: inline-end;
+        }
+
         #openModal {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #4CAF50; /* Green */
-            color: #fff; /* White text */
+            background-color: #4CAF50;
+            color: #fff;
             border: none;
-            border-radius: 50%; /* Make it a circle */
+            border-radius: 50%;
             width: 50px;
             height: 50px;
             font-size: 24px;
-            cursor: pointer;
-            outline: none;
-        }
-
-        /* Style the buttons */
-        .actions button {
-            background-color: #3f3f3f1a; /* Green */
-            color: #000000; /* White text */
-            border: none;
-            border-radius: 50%; /* Make it a circle */
-            width: 30px;
-            height: 30px;
-            font-size: 18px;
             cursor: pointer;
             outline: none;
         }
@@ -100,28 +134,25 @@
     <form id="accessForm" class="access-form" method="post" action="{% url 'inventory_list' %}">
         {% csrf_token %}
         {{ access_form.as_p }}
-        <button id="submitCodeBtn" type="submit">Submit Code</button>
+        <button id="submitCodeBtn" type="submit">Submit</button>
     </form>
     {% endif %}
     
     <!-- Inventory list -->
-    <ul id="inventoryList" class="{% if items is None %}hidden{% endif %}">
-        <h1>Inventory List</h1>
+    <ul id="inventoryList" class="{% if items is None and access_form_visible %}hidden{% endif %}">
+        <h1 style="text-align: center; margin-bottom: 20px;">Inventory List</h1>
         <!-- Headers -->
         <li>
             <span><strong>Item</strong></span>
-            <span><strong>Quantity</strong></span>
             <span class="actions">
-                <strong>+</strong>
-                <strong>-</strong>
-                <strong>&#128465;</strong>
+                <strong>Quantity</strong>
             </span>
         </li>
         {% for item in items %}
             <li>
-                <span>{{ item.name }}</span>
-                <span>{{ item.quantity }}</span>
+                <span>{{ item.item }}</span>
                 <span class="actions">
+                    <span>{{ item.quantity }}</span>
                     <form action="{% url 'increase_quantity' item.id %}" method="post">
                         {% csrf_token %}
                         <button type="submit">+</button>
@@ -140,8 +171,7 @@
     </ul>
 
     <!-- Add the "Add New Item" button -->
-    <!-- Add a button to open the modal -->
-    <button id="openModal">+</button>
+    <button id="openModal" class="{% if items is None and access_form_visible %}hidden{% endif %}">+</button>
 
     <!-- The modal -->
     <div id="myModal" class="modal">

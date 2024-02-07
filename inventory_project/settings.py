@@ -25,7 +25,19 @@ SECRET_KEY = 'django-insecure--$(dfrxpg$(1x0-0lk-!5%f#cc6d6rbhyu8%ew+xn!_g#3e(4e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        'inventoryapp.mooo.com',
+        '192.168.50.*',
+        '192.168.50.104',
+        '*',
+        '0.0.0.0.',
+        '0.0.0.0:8000',
+        'localhost'
+        'localhost:8000',
+        '184.72.120.78'
+    ]
+
+STATIC_ROOT = '/var/www/inventory_project/assets/'
 
 
 # Application definition

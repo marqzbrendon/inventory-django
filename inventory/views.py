@@ -56,9 +56,9 @@ def add_item(request):
 
             # Check if user code is available
             if user_code:
-                name = form.cleaned_data['name']
+                item = form.cleaned_data['item']
                 quantity = form.cleaned_data['quantity']
-                Item.objects.create(name=name, quantity=quantity, user_code=user_code)
+                Item.objects.create(item=item, quantity=quantity, user_code=user_code)
                 return redirect('inventory_list')
     else:
         form = ItemForm()
