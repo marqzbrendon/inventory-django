@@ -11,18 +11,15 @@
             margin: 0;
             padding: 0;
         }
-
         .hidden {
             display: none;
         }
-
         #inventoryList {
             max-width: 600px;
             margin: 20px auto;
             padding: 0;
             list-style-type: none;
         }
-
         #inventoryList li {
             display: flex;
             justify-content: space-between;
@@ -31,17 +28,14 @@
             background-color: #fff;
             border-bottom: 1px solid #ccc;
         }
-
         #inventoryList li:nth-child(even) {
             background-color: #f2f2f2;
         }
-
         .actions {
             display: flex;
             align-items: center;
-            gap: 10px; /* Adjust the gap between buttons */
+            gap: 10px;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -54,64 +48,43 @@
             width: 70%;
             max-width: 400px;
         }
-
         .modal h2 {
             margin-top: 0;
             font-size: 20px;
             color: #333;
         }
-
-        .access-form {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid #ccc;
-            padding: 20px;
-            background-color: #fff;
-            z-index: 1000;
-            width: 90%;
-            max-width: 300px;
+        .access-form, .search-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
         }
-
-        .access-form h2 {
-            margin-top: 0;
-            font-size: 20px;
-            color: #333;
-        }
-
-        .access-form label {
-            display: block;
-            margin-bottom: 10px;
-            color: #666;
-        }
-
         .access-form input[type="text"],
         .access-form input[type="password"],
-        .access-form input[type="number"] {
-            width: 100%;
+        .access-form input[type="number"],
+        .search-form input[type="text"] {
             padding: 10px;
+            margin-right: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
-            margin-bottom: 10px;
             font-family: Arial, sans-serif;
         }
-
-        .access-form button {
-            width: 100%;
-            background-color: #4CAF50;
-            color: #fff;
+        .access-form button, .search-form button {
+            padding: 10px 15px;
             border: none;
             border-radius: 4px;
-            padding: 10px;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
             outline: none;
-            float: inline-end;
         }
-
+        .search-form button[type="submit"] {
+            margin-right: 8px;
+        }
+        .search-form button.clear-btn {
+            background-color: #f44336; /* Red */
+        }
         #openModal {
             position: fixed;
             bottom: 20px;
@@ -142,6 +115,13 @@
     <ul id="inventoryList" class="{% if items is None and access_form_visible %}hidden{% endif %}">
         <h1 style="text-align: center; margin-bottom: 20px;">Inventory List</h1>
         <!-- Headers -->
+        <li class="search-form">
+            <form method="get" action="{% url 'inventory_list' %}">
+                <input type="text" name="search" id="search-input" placeholder="Search items...">
+                <button type="submit">Search</button>
+                <button type="button" class="clear-btn" onclick="clearSearch()">Clear</button>
+            </form>        
+        </li>   
         <li>
             <span><strong>Item</strong></span>
             <span class="actions">
@@ -220,6 +200,11 @@
             $.get("{% url 'add_item' %}", function(data) {
                 $("#modalContent").html(data);
             });
+        }
+        
+        function clearSearch() {
+            document.getElementById('search-input').value = ''; // Clear the search input
+            document.querySelector('.search-form form').submit();
         }
     </script>
 </body>

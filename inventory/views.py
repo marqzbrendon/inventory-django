@@ -24,6 +24,11 @@ def inventory_list(request):
         user_code = request.session.get('user_code')
         if user_code:
             items = Item.objects.filter(user_code=user_code)
+            # New: Get search query from request
+            search_query = request.GET.get('search')
+            if search_query:
+                # Filter items by search query (adjust 'item' to your model's field)
+                items = items.filter(item__icontains=search_query)
         else:
             access_form_visible = True
 
